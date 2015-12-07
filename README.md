@@ -1,2 +1,2 @@
 # BBCodeParser
-A compact BBCode parser
+A super compact BBCode parser
