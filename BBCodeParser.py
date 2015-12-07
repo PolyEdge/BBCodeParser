@@ -5,8 +5,12 @@
 def parse_bbcode(bc):
     tokens_found = []
     current_text = ''
+    count = -1
     parsing_tag = False
+    in_code = False
+    code_init = False
     for x in bc:
+        count += 1
         if parsing_tag:
             current_text = current_text + x
             if x == ']':
@@ -14,12 +18,25 @@ def parse_bbcode(bc):
                 parsing_tag = False
                 current_text = ''
                 continue
+            if code_init:
+                in_code = True
+                code_init = False
         else:
-            if x[0] == '[':
+            try: n1 = bc[count]; n2 = bc[count]
+            except: n1 = ''; n2 = ''
+            if x[0] == '[' and (not (n1 == '[' and n2 == ']')) and (not in_code):
                 tokens_found.append({'id':'text', 'value':current_text})
                 current_text = '['
                 parsing_tag = True
+                if bc[count:count+6] == '[code]':
+                    code_init = True
                 continue
+            elif in_code and bc[count:count+7] == '[/code]':
+                tokens_found.append({'id':'text', 'value':current_text})
+                current_text = '['
+                parsing_tag = True
+                in_code = False
+                continue                
             else:
                 current_text = current_text + x
     tokens_found.append({'id':'text', 'value':current_text})
