@@ -14,7 +14,7 @@ def parse_bbcode(bc):
         if parsing_tag:
             current_text = current_text + x
             if x == ']':
-                tokens_found.append({'id':'tag', 'value':current_text})
+                tokens_found.append({'id':'tag', 'value':'[' + current_text.split()[0].rsplit('=')[0].replace('[', '').replace(']', '') + ']'})
                 parsing_tag = False
                 current_text = ''
                 continue
