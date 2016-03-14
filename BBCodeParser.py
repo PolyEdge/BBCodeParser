@@ -2,6 +2,134 @@
 # BBCodeParser 1.0
 # Written by Dylan5797 [https://dylan5797.github.io]
 
+#!python3
+formats = {
+    "_default":{
+        "style":"style",
+        "id":"id",
+        "key":"accesskey",
+        "class":"class"
+        },
+    "url":{
+        "html":"a",
+        "keys":{
+            "_":"href",
+            "download":"download",
+            }
+        },
+    "b":{
+        "html":"b",
+        "keys":{}
+        },
+    "em":{
+        "html":"em"
+        },
+    "quote":{
+        "html":"blockquote",
+        "keys":{}
+        },
+    "break":{
+        "html":"br",
+        "keys":{}
+        },
+    "code":{
+        "html":"code",
+        "keys":{}
+        },
+    "h1":{
+        "html":"h",
+        "keys":{}
+        },
+    "h2":{
+        "html":"h2",
+        "keys":{}
+        },
+    "h3":{
+        "html":"h3",
+        "keys":{}
+        },
+    "h4":{
+        "html":"h4",
+        "keys":{}
+        },
+    "h5":{
+        "html":"h5",
+        "keys":{}
+        },
+    "h6":{
+        "html":"h6",
+        "keys":{}
+        },
+    "i":{
+        "html":"i",
+        "keys":{}
+        },
+    "olist":{
+        "html":"ol",
+        "keys":{
+            "start":"start",
+            "type":"type"
+            }
+        },
+    "lquote":{
+        "html":"q",
+        "keys":{}
+        },
+    "s":{
+        "html":"s",
+        "keys":{}
+        },
+    "span":{
+        "html":"span",
+        "keys":{
+            "color":"color",
+            }
+        },
+    "sub":{
+        "html":"sub",
+        "keys":{}
+        },
+    "sup":{
+        "html":"sup",
+        "keys":{}
+        },
+    "table":{
+        "html":"table",
+        "keys":{}
+        },
+    "row":{
+        "html":"tr",
+        "keys":{}
+        },
+    "headrow":{
+        "html":"th",
+        "keys":{}
+        },
+    "cell":{
+        "html":"td",
+        "keys":{}
+        },
+    "u":{
+        "html":"u",
+        "keys":{}
+        },
+    "list":{
+        "html":"ul",
+        "keys":{}
+        },
+    "img":{
+        "html":"img",
+        "keys":{
+            "hover":"alt",
+            "height":"height",
+            "width":"width",
+            "url":"src"
+            }
+        }
+}
+
+# Syntax:
+# [italic]italic[/italic]
 def parse_bbcode(bc):
     tokens_found = []
     current_text = ''
@@ -84,3 +212,16 @@ def parse_bbcode(bc):
         else:
             return output
     return compile_tags(tokens_found)
+
+def convert_to_html(bc):
+    def recurse(data):
+        output = ''
+        for x in data:
+            if type(x) == str:
+                output = output + x.replace('\n', '<br>')
+            else:
+                output = output + '<' + formats[x['tag']]['html'] + ''.join([(' ' + formats[x['tag']]['keys']['_'] + '="' + x['param'][y] + '"') for y in x['param'] if (y == x['tag']) and ('_' in formats[x['tag']]['keys'])] + [(' ' + formats[x['tag']]['keys'][y] + '="' + x['param'][y] + '"') for y in x['param'] if y in formats[x['tag']]['keys']] + [(' ' + formats['_default'][y] + '="' + x['param'][y] + '"') for y in x['param'] if y in formats['_default']]) + '>'
+                output = output + recurse(x['value'])
+                output = output + '</' + formats[x['tag']]['html'] + '>'
+        return output
+    return recurse(bc)
